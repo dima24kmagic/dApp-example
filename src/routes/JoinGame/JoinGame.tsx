@@ -1,10 +1,10 @@
 import React from "react";
 import useJoinGame from "./hooks/useJoinGame";
 import PickMove from "../../components/RPSMoves";
-import { Button, Input, InputLabel, Typography } from "@mui/material";
+import { Button, Input, InputLabel } from "@mui/material";
 import styled from "styled-components";
 import { StyledHighlight } from "../../components/AccountInfo/AccountInfo";
-import {Text} from "../../components/LoadingState/ProgressLoader";
+import { Text } from "../../components/LoadingState/ProgressLoader";
 
 export interface IJoinGameProps {}
 
@@ -18,8 +18,7 @@ const StyledWrapper = styled.div`
 /**
  * Join created game
  */
-function JoinGame(props: IJoinGameProps) {
-  const {} = props;
+function JoinGame() {
   const {
     joinRPSAddress,
     handleCreatedGameAddressChange,

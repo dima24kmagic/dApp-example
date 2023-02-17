@@ -1,7 +1,7 @@
 import React from "react";
 import useFinishGame from "./hooks/useFinishGame";
 import PickMove from "../../components/RPSMoves";
-import { Button, Input, InputLabel, Typography } from "@mui/material";
+import { Button, Input, InputLabel } from "@mui/material";
 import styled from "styled-components";
 import { Text } from "../../components/LoadingState/ProgressLoader";
 
@@ -16,7 +16,6 @@ const StyledWrapper = styled.div`
  * Finish game
  */
 function FinishGame(props: IFinishGameProps) {
-  const {} = props;
   const {
     handleChangeFinishRPSAddress,
     handleFinishGame,

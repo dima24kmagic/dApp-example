@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Typography } from "@mui/material";
+import { Button } from "@mui/material";
 import { StyledHighlight } from "../../components/AccountInfo/AccountInfo";
 import styled from "styled-components";
 import { IMoveKey } from "../../components/RPSMoves/PickMove";
@@ -65,7 +65,10 @@ function Game(props: IGameProps) {
           </StyledHighlight>
         </Text>
       )}
-      <Button variant="outlined" onClick={() => onContractStatusCheck(contractKey)}>
+      <Button
+        variant="outlined"
+        onClick={() => onContractStatusCheck(contractKey)}
+      >
         Check status
       </Button>
     </StyledGameWrapper>
