@@ -69,14 +69,13 @@ export const createJoinedLocalStorageContract = ({
   );
 };
 
-export const deleteContractFromLocalStorage = (contractAddress: string, localStorageKey: string) => {
-  const { contractsData } =
-    getLocalStorageCreatedContracts(localStorageKey);
+export const deleteContractFromLocalStorage = (
+  contractAddress: string,
+  localStorageKey: string
+) => {
+  const { contractsData } = getLocalStorageCreatedContracts(localStorageKey);
   // @ts-ignore
   delete contractsData[contractAddress];
-  localStorage.setItem(
-    localStorageKey,
-    JSON.stringify(contractsData)
-  );
-  return contractsData
+  localStorage.setItem(localStorageKey, JSON.stringify(contractsData));
+  return contractsData;
 };

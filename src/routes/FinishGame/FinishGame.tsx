@@ -3,6 +3,7 @@ import useFinishGame from "./hooks/useFinishGame";
 import PickMove from "../../components/RPSMoves";
 import { Button, Input, InputLabel, Typography } from "@mui/material";
 import styled from "styled-components";
+import { Text } from "../../components/LoadingState/ProgressLoader";
 
 export interface IFinishGameProps {}
 
@@ -26,7 +27,7 @@ function FinishGame(props: IFinishGameProps) {
 
   return (
     <StyledWrapper>
-      <Typography
+      <Text
         color="rgba(255,255,255,0.9)"
         textAlign="center"
         marginBottom="24px"
@@ -34,7 +35,7 @@ function FinishGame(props: IFinishGameProps) {
         fontSize="32px"
       >
         Finish Page
-      </Typography>
+      </Text>
 
       <InputLabel htmlFor="finishAddress">Game Address</InputLabel>
       <Input

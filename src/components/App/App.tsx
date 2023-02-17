@@ -32,6 +32,7 @@ const StyledHomeButton = styled(Link)`
   left: 20px;
   color: white;
 `;
+
 const darkTheme = createTheme({
   palette: {
     mode: "dark",

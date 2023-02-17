@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useMetaMask } from "metamask-react";
 import styled from "styled-components";
-import { formatEther } from "ethers/lib/utils";
 import { web3 } from "../../index";
 
 export interface IAcountInfoProps {}
@@ -50,24 +49,23 @@ const StyledConnectButton = styled.button`
  */
 function AccountInfo(props: IAcountInfoProps) {
   const { account, connect, status } = useMetaMask();
-  const [balance, setBalance] = useState(0);
-  const [netInfo, setNetInfo] = useState({})
+  const [balance, setBalance] = useState("0");
 
   const handleConnectToAccount = async () => {
     try {
       await connect();
-    } catch (e) {}
+    } catch (e) {
+      alert("Error connecting account");
+      console.log(e);
+    }
   };
 
   useEffect(() => {
     (async () => {
       if (account) {
         const balance = await web3.eth.getBalance(account);
-        const netId = await web3.eth.net.getId()
-        const netType = await web3.eth.net.getNetworkType()
-        console.log({netId, netType});
-        console.log(formatEther(balance));
-        setBalance(Number(formatEther(balance)));
+        const formattedBalance = web3.utils.fromWei(balance, "ether");
+        setBalance(formattedBalance);
       }
     })();
   }, [account]);

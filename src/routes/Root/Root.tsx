@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
+import { useMetaMask } from "metamask-react";
 
 export interface IRootProps {}
 
@@ -33,6 +34,10 @@ const NavItem = styled(NavLink)`
  */
 function Root(props: IRootProps) {
   const {} = props;
+  const { account } = useMetaMask();
+  if (!account) {
+    return null;
+  }
   return (
     <Wrapper>
       <NavItem to="/start">Start Game</NavItem>

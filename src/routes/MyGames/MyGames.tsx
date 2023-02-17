@@ -1,18 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
-import { Typography } from "@mui/material";
 import { MOVES } from "../../components/RPSMoves/PickMove";
-import { getRPSContractInstance } from "../../services/contract_rps";
-import moment from "moment";
-import { useMetaMask } from "metamask-react";
 import Game from "./Game";
-import {
-  contractsStorageKey,
-  deleteContractFromLocalStorage,
-  getLocalStorageCreatedContracts,
-  joinedContractsLocalStorageKey,
-} from "../../services/manageContractsLocalStorage";
-import { web3 } from "../../index";
+import { Text } from "../../components/LoadingState/ProgressLoader";
+import { useCreatedGames } from "./hooks/useCreatedGames";
 
 export interface IMyGamesProps {}
 const StyledWrapper = styled.div`
@@ -27,118 +18,36 @@ const StyledWrapper = styled.div`
  * Route with all games stored in localstorage
  */
 function MyGames(props: IMyGamesProps) {
-  const {} = props;
-  const { account } = useMetaMask();
-  const [contractsData, setContractsData] = useState({});
-  const [joinedContracts, setJoinedContracts] = useState({});
-
-  useEffect(() => {
-    const { contractsData } =
-      getLocalStorageCreatedContracts(contractsStorageKey);
-    const { contractsData: joinedContractsData } =
-      getLocalStorageCreatedContracts(joinedContractsLocalStorageKey);
-
-    setContractsData(contractsData);
-    setJoinedContracts(joinedContractsData);
-  }, []);
-
-  const deleteContractFromLocalStorageAndState = (
-    contractAddress: string,
-    localStorageKey: string
-  ) => {
-    const localStorageContractData = deleteContractFromLocalStorage(
-      contractAddress,
-      localStorageKey
+  const { createdContracts, joinedContracts, handleCheckContractStatus } =
+    useCreatedGames();
+  const renderGames = (contracts: any) => {
+    return (
+      <>
+        {Object.keys(contracts).map((contractKey: string) => {
+          const contractData = contracts[contractKey];
+          const move = Object.keys(MOVES).find(
+            // @ts-ignore
+            (key) => MOVES[key] === contractData?.move
+          );
+          const creatorAccount = contractData?.account;
+          return (
+            <Game
+              key={contractKey}
+              creatorAccount={creatorAccount}
+              onContractStatusCheck={handleCheckContractStatus}
+              contractKey={contractKey}
+              // @ts-ignore
+              move={move}
+            />
+          );
+        })}
+      </>
     );
-    if (localStorageKey === contractsStorageKey) {
-      setContractsData(localStorageContractData);
-    } else {
-      setJoinedContracts(localStorageContractData);
-    }
-  };
-
-  const handleIfCanRefund = async (contractAddress: string) => {
-    const contractBalance = await web3.eth.getBalance(contractAddress);
-
-    if (contractBalance === "0") {
-      alert("Game being played by both parties");
-      deleteContractFromLocalStorageAndState(
-        contractAddress,
-        contractsStorageKey
-      );
-      return deleteContractFromLocalStorageAndState(
-        contractAddress,
-        joinedContractsLocalStorageKey
-      );
-    }
-
-    const rpsContractInstance = await getRPSContractInstance({
-      deployedRPSContractAddress: contractAddress,
-    });
-
-    const ownerAddress = await rpsContractInstance.methods.j1().call();
-    const isOwner = ownerAddress.toLowerCase() === account;
-
-    const lastAction = await rpsContractInstance.methods.lastAction().call();
-    const lastActionDate = moment.unix(lastAction);
-    const now = moment();
-    const fiveMinutesAgo = moment(now).subtract(5, "minutes");
-    const hasFiveMinutesPassed = fiveMinutesAgo.isAfter(lastActionDate);
-
-    const secondPartyMove = await rpsContractInstance.methods.c2().call();
-
-    if (!hasFiveMinutesPassed) {
-      return alert(
-        `Wait ${lastActionDate.diff(fiveMinutesAgo, "seconds")} seconds`
-      );
-    }
-    if (hasFiveMinutesPassed) {
-      if (isOwner) {
-        // is second party doesn't have a move - it will refund
-        if (secondPartyMove === "0") {
-          try {
-            console.log(secondPartyMove, hasFiveMinutesPassed);
-            try {
-              await rpsContractInstance.methods.j2Timeout().call();
-              deleteContractFromLocalStorageAndState(
-                rpsContractInstance.options.address,
-                contractsStorageKey
-              );
-              return alert(
-                "Second player didn't make a move - returning funds"
-              );
-            } catch (e) {
-              console.log(e);
-            }
-          } catch (e) {
-            console.log(e);
-          }
-        } else {
-          alert(
-            "Second player did a move, finish this play before second player request refund"
-          );
-        }
-      } else {
-        if (secondPartyMove === "0") {
-          return alert(
-            "First player can close this game, you can get refund if after accepting the game in join game tab and waiting for first party to forget to finish it"
-          );
-        }
-        await rpsContractInstance.methods.j1Timeout().send({ from: account });
-        deleteContractFromLocalStorageAndState(
-          rpsContractInstance.options.address,
-          joinedContractsLocalStorageKey
-        );
-        return alert(
-          "First player didn't finished game on time - returning funds"
-        );
-      }
-    }
   };
 
   return (
     <StyledWrapper>
-      <Typography
+      <Text
         color="rgba(255,255,255,0.9)"
         textAlign="center"
         marginBottom="24px"
@@ -146,62 +55,16 @@ function MyGames(props: IMyGamesProps) {
         fontSize="32px"
       >
         My Game Contracts
-      </Typography>
+      </Text>
 
-      <Typography color="white" marginTop="16px">
+      <Text color="white" marginTop="16px">
         Joined Games:
-      </Typography>
-      {Object.keys(joinedContracts).map((contractKey) => {
-        // @ts-ignore
-        const contractData = joinedContracts[contractKey];
-        // @ts-ignore
-        const move = Object.keys(MOVES).find(
-          // @ts-ignore
-          (key) => MOVES[key] === contractData?.move
-        );
-        const creatorAccount = contractData?.account;
-
-        if (creatorAccount.toLowerCase() === account) {
-          return;
-        }
-        return (
-          <Game
-            key={contractKey}
-            creatorAccount={creatorAccount}
-            handleIfCanRefund={handleIfCanRefund}
-            contractKey={contractKey}
-            // @ts-ignore
-            move={move}
-          />
-        );
-      })}
-
-      <Typography color="white" marginTop="16px">
+      </Text>
+      {renderGames(joinedContracts)}
+      <Text color="white" marginTop="16px">
         Created Games:
-      </Typography>
-      {Object.keys(contractsData).map((contractKey) => {
-        // @ts-ignore
-        const contractData = contractsData[contractKey];
-        // @ts-ignore
-        const move = Object.keys(MOVES).find(
-          // @ts-ignore
-          (key) => MOVES[key] === contractData?.move
-        );
-        const creatorAccount = contractData?.account;
-
-        if (creatorAccount.toLowerCase() !== account) {
-          return;
-        }
-        return (
-          <Game
-            creatorAccount={creatorAccount}
-            handleIfCanRefund={handleIfCanRefund}
-            contractKey={contractKey}
-            // @ts-ignore
-            move={move}
-          />
-        );
-      })}
+      </Text>
+      {renderGames(createdContracts)}
     </StyledWrapper>
   );
 }

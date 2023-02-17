@@ -4,6 +4,7 @@ import PickMove from "../../components/RPSMoves";
 import { Button, Input, InputLabel, Typography } from "@mui/material";
 import styled from "styled-components";
 import { StyledHighlight } from "../../components/AccountInfo/AccountInfo";
+import {Text} from "../../components/LoadingState/ProgressLoader";
 
 export interface IJoinGameProps {}
 
@@ -31,7 +32,7 @@ function JoinGame(props: IJoinGameProps) {
   } = useJoinGame();
   return (
     <StyledWrapper>
-      <Typography
+      <Text
         color="rgba(255,255,255,0.9)"
         textAlign="center"
         marginBottom="24px"
@@ -39,7 +40,7 @@ function JoinGame(props: IJoinGameProps) {
         fontSize="32px"
       >
         Join Page
-      </Typography>
+      </Text>
       {stake === "0" && (
         <>
           <InputLabel htmlFor="gameContractAddress">
@@ -59,9 +60,9 @@ function JoinGame(props: IJoinGameProps) {
         </Button>
       )}
       {stake !== "0" && (
-        <Typography color="white">
+        <Text color="white">
           Game Stake: <StyledHighlight>{stake} ETH</StyledHighlight>
-        </Typography>
+        </Text>
       )}
       {stake !== "0" && (
         <PickMove onMoveChange={handleMoveChange} selectedMove={selectedMove} />

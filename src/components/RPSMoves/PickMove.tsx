@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Typography } from "@mui/material";
 import styled from "styled-components";
+import { Text } from "../LoadingState/ProgressLoader";
 
 export const MOVES = {
   Null: 0,
@@ -42,9 +43,9 @@ function PickMove(props: IRpsMovesProps) {
 
   return (
     <StyledWrapper>
-      <Typography color="white" marginBottom="8px">
+      <Text color="white" marginBottom="8px">
         Select Weapon:
-      </Typography>
+      </Text>
       {Object.keys(MOVES).map((key: string) => {
         // @ts-ignore
         const move = MOVES[key];

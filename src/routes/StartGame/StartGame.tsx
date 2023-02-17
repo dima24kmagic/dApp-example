@@ -1,11 +1,10 @@
 import React from "react";
 import useStartGame from "./hooks/useStartGame";
-import RPSMoves from "../../components/RPSMoves/PickMove";
-import { Button, Input, InputLabel, Typography } from "@mui/material";
-import styled from "styled-components";
 import PickMove from "../../components/RPSMoves/PickMove";
+import { Button, Input, InputLabel } from "@mui/material";
+import styled from "styled-components";
 import { StyledHighlight } from "../../components/AccountInfo/AccountInfo";
-import {Text} from "../../components/LoadingState/ProgressLoader";
+import { Text } from "../../components/LoadingState/ProgressLoader";
 
 export interface IStartGameProps {}
 
@@ -41,7 +40,7 @@ function StartGame(props: IStartGameProps) {
     !stake || stake === "0" || isNaN(Number(stake)) || !secondPartyAddress;
   return (
     <StyledGameContainer>
-      <Typography
+      <Text
         color="rgba(255,255,255,0.9)"
         textAlign="center"
         marginBottom="24px"
@@ -49,7 +48,7 @@ function StartGame(props: IStartGameProps) {
         fontSize="32px"
       >
         Start Page
-      </Typography>
+      </Text>
       <StyledInputWrapper>
         <InputLabel color="success" htmlFor="stake">
           Set Stake
@@ -80,7 +79,9 @@ function StartGame(props: IStartGameProps) {
       {rpsCreatedContractAddress && (
         <Text color="white">
           Created Game Contract:{" "}
-          <StyledHighlight color="magenta">{rpsCreatedContractAddress}</StyledHighlight>
+          <StyledHighlight color="magenta">
+            {rpsCreatedContractAddress}
+          </StyledHighlight>
         </Text>
       )}
       <Button

@@ -8,15 +8,15 @@ import { store } from "./store";
 import App from "./components/App";
 import { Reset } from "styled-reset";
 import { createGlobalStyle } from "styled-components";
-import {ethers} from "ethers";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
-export const web3 = new Web3(
-  "https://eth-goerli.g.alchemy.com/v2/uGqOBrqaTOnm2Q3ovEd15n3zCrH_xyk7"
-);
 
+const alchemyApiKey = process.env.REACT_APP_ALCHEMY_API_KEY;
+export const web3 = new Web3(
+  `https://eth-goerli.g.alchemy.com/v2/${alchemyApiKey}`
+);
 
 const GlobalStyle = createGlobalStyle`
   *{

@@ -5,12 +5,13 @@ import styled from "styled-components";
 import { IMoveKey } from "../../components/RPSMoves/PickMove";
 import { getRPSContractInstance } from "../../services/contract_rps";
 import { useMetaMask } from "metamask-react";
+import { Text } from "../../components/LoadingState/ProgressLoader";
 
 export interface IGameProps {
   contractKey: string;
   move: IMoveKey;
   creatorAccount: string;
-  handleIfCanRefund: (contractAddress: string) => void;
+  onContractStatusCheck: (contractAddress: string) => void;
 }
 
 const StyledGameWrapper = styled.div`
@@ -25,7 +26,7 @@ const StyledGameWrapper = styled.div`
  */
 function Game(props: IGameProps) {
   const { account } = useMetaMask();
-  const { contractKey, move, creatorAccount, handleIfCanRefund } = props;
+  const { contractKey, move, creatorAccount, onContractStatusCheck } = props;
   const [secondPlayerMove, setSecondPlayerMove] = useState("0");
 
   useEffect(() => {
@@ -47,25 +48,25 @@ function Game(props: IGameProps) {
   const isOwner = account === creatorAccount.toLowerCase();
   return (
     <StyledGameWrapper key={contractKey}>
-      <Typography color="white">
+      <Text color="white">
         Contract: <StyledHighlight>{contractKey}</StyledHighlight>
-      </Typography>
-      <Typography color="white">
+      </Text>
+      <Text color="white">
         Selected move: <StyledHighlight>{move}</StyledHighlight>
-      </Typography>
-      <Typography color="white">
+      </Text>
+      <Text color="white">
         Creator address: <StyledHighlight>{creatorAccount}</StyledHighlight>
-      </Typography>
+      </Text>
       {isOwner && (
-        <Typography color="white">
+        <Text color="white">
           Did second player played:{" "}
           <StyledHighlight>
             {secondPlayerMove !== "0" ? "Yes" : "No"}
           </StyledHighlight>
-        </Typography>
+        </Text>
       )}
-      <Button variant="outlined" onClick={() => handleIfCanRefund(contractKey)}>
-        Check refund
+      <Button variant="outlined" onClick={() => onContractStatusCheck(contractKey)}>
+        Check status
       </Button>
     </StyledGameWrapper>
   );

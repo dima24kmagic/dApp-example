@@ -1,8 +1,5 @@
 import { ChangeEvent } from "react";
-import {
-  createHashContractInstance,
-  getHasherContractInstance,
-} from "../../../services/contract_hash";
+import { getHasherContractInstance } from "../../../services/contract_hash";
 import { createRPSContractInstance } from "../../../services/contract_rps";
 import { useMetaMask } from "metamask-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,9 +19,11 @@ import {
   setIsMiningTransaction,
   setLoadingMessage,
 } from "../../../store/slices/transactionsLoadingSlice";
+import {useNavigate} from "react-router-dom";
 
 const useStartGame = () => {
   const { account } = useMetaMask();
+  const navigate = useNavigate()
 
   const { stake, secondPartyAddress, selectedMove, rpsCreatedContractAddress } =
     useSelector((state: RootState) => state.startGame);
@@ -99,6 +98,7 @@ const useStartGame = () => {
       dispatch(setSelectedMove(MOVES.Rock));
       dispatch(setStake("0"));
       dispatch(setSecondPartyAddress(""));
+      navigate("/games")
     } catch (e) {
       alert("Cant RPS contract");
       dispatch(setIsMiningTransaction(false));
