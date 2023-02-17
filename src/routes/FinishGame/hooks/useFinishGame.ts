@@ -13,6 +13,12 @@ import {
   getLocalStorageCreatedContracts,
   getSaltFromLocalStorage,
 } from "../../../services/manageContractsLocalStorage";
+import { web3 } from "../../../index";
+import { waitForTheTransactionToBeMined } from "../../../services/contract_hash";
+import {
+  setIsMiningTransaction,
+  setLoadingMessage,
+} from "../../../store/slices/transactionsLoadingSlice";
 
 const useFinishGame = () => {
   const { account } = useMetaMask();
@@ -37,10 +43,43 @@ const useFinishGame = () => {
       const salt = getSaltFromLocalStorage(rpsContractInstance.options.address);
 
       try {
-        await rpsContractInstance.methods
+        const solveMethodABI = await rpsContractInstance.methods
           .solve(selectedMove, salt)
-          .send({ from: account });
-        const { contractsData } = getLocalStorageCreatedContracts();
+          .encodeABI();
+
+        const networkId = await web3.eth.net.getId();
+        const transactionParameters = {
+          from: account,
+          to: finishRPSAddress,
+          data: solveMethodABI,
+          chainId: networkId,
+        };
+
+        dispatch(setIsMiningTransaction(true));
+        dispatch(
+          setLoadingMessage({
+            message: "Please send transaction to solve the game",
+            txHash: "",
+          })
+        );
+        const txHash = await window.ethereum.request({
+          method: "eth_sendTransaction",
+          params: [transactionParameters],
+        });
+
+        dispatch(
+          setLoadingMessage({
+            message: "Solving game on blockchain",
+            txHash,
+          })
+        );
+
+        await waitForTheTransactionToBeMined(txHash);
+
+        dispatch(setIsMiningTransaction(false));
+
+        const { contractsData } =
+          getLocalStorageCreatedContracts(contractsStorageKey);
         // @ts-ignore
         delete contractsData[rpsContractInstance.options.address];
         localStorage.setItem(
@@ -49,9 +88,13 @@ const useFinishGame = () => {
         );
         dispatch(setFinishRPSAddress(""));
         dispatch(setSelectedMove(MOVES.Rock));
-      } catch (e) {}
+      } catch (e) {
+        dispatch(setIsMiningTransaction(false));
+        console.log(e);
+      }
     } catch (e) {
       alert("Wrong Contract Address");
+      dispatch(setIsMiningTransaction(false));
     }
   };
 

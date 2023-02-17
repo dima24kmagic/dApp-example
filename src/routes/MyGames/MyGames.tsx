@@ -9,10 +9,10 @@ import Game from "./Game";
 import {
   contractsStorageKey,
   deleteContractFromLocalStorage,
-  getJoinedLocalStorageContracts,
   getLocalStorageCreatedContracts,
   joinedContractsLocalStorageKey,
 } from "../../services/manageContractsLocalStorage";
+import { web3 } from "../../index";
 
 export interface IMyGamesProps {}
 const StyledWrapper = styled.div`
@@ -33,8 +33,11 @@ function MyGames(props: IMyGamesProps) {
   const [joinedContracts, setJoinedContracts] = useState({});
 
   useEffect(() => {
-    const { contractsData } = getLocalStorageCreatedContracts();
-    const joinedContractsData = getJoinedLocalStorageContracts();
+    const { contractsData } =
+      getLocalStorageCreatedContracts(contractsStorageKey);
+    const { contractsData: joinedContractsData } =
+      getLocalStorageCreatedContracts(joinedContractsLocalStorageKey);
+
     setContractsData(contractsData);
     setJoinedContracts(joinedContractsData);
   }, []);
@@ -55,6 +58,20 @@ function MyGames(props: IMyGamesProps) {
   };
 
   const handleIfCanRefund = async (contractAddress: string) => {
+    const contractBalance = await web3.eth.getBalance(contractAddress);
+
+    if (contractBalance === "0") {
+      alert("Game being played by both parties");
+      deleteContractFromLocalStorageAndState(
+        contractAddress,
+        contractsStorageKey
+      );
+      return deleteContractFromLocalStorageAndState(
+        contractAddress,
+        joinedContractsLocalStorageKey
+      );
+    }
+
     const rpsContractInstance = await getRPSContractInstance({
       deployedRPSContractAddress: contractAddress,
     });
@@ -81,14 +98,18 @@ function MyGames(props: IMyGamesProps) {
         if (secondPartyMove === "0") {
           try {
             console.log(secondPartyMove, hasFiveMinutesPassed);
-            await rpsContractInstance.methods
-              .j2Timeout()
-              .send({ from: account });
-            deleteContractFromLocalStorageAndState(
-              rpsContractInstance.options.address,
-              contractsStorageKey
-            );
-            return alert("Second player didn't make a move - returning funds");
+            try {
+              await rpsContractInstance.methods.j2Timeout().call();
+              deleteContractFromLocalStorageAndState(
+                rpsContractInstance.options.address,
+                contractsStorageKey
+              );
+              return alert(
+                "Second player didn't make a move - returning funds"
+              );
+            } catch (e) {
+              console.log(e);
+            }
           } catch (e) {
             console.log(e);
           }
@@ -145,6 +166,7 @@ function MyGames(props: IMyGamesProps) {
         }
         return (
           <Game
+            key={contractKey}
             creatorAccount={creatorAccount}
             handleIfCanRefund={handleIfCanRefund}
             contractKey={contractKey}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Typography } from "@mui/material";
 import { StyledHighlight } from "../../components/AccountInfo/AccountInfo";
 import styled from "styled-components";
-import { IMove, IMoveKey } from "../../components/RPSMoves/PickMove";
+import { IMoveKey } from "../../components/RPSMoves/PickMove";
 import { getRPSContractInstance } from "../../services/contract_rps";
 import { useMetaMask } from "metamask-react";
 
@@ -30,13 +30,15 @@ function Game(props: IGameProps) {
 
   useEffect(() => {
     (async () => {
-      const rpsContractInstance = await getRPSContractInstance({
-        deployedRPSContractAddress: contractKey,
-      });
-      const contractSecondPlayerMove = await rpsContractInstance.methods
-        .c2()
-        .call();
-      setSecondPlayerMove(contractSecondPlayerMove);
+      try {
+        const rpsContractInstance = await getRPSContractInstance({
+          deployedRPSContractAddress: contractKey,
+        });
+        const secondPlayerMove = await rpsContractInstance.methods.c2().call();
+        setSecondPlayerMove(secondPlayerMove);
+      } catch (e) {
+        console.log(e);
+      }
     })();
 
     return () => {};

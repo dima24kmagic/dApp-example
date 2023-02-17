@@ -5,6 +5,7 @@ import { Button, Input, InputLabel, Typography } from "@mui/material";
 import styled from "styled-components";
 import PickMove from "../../components/RPSMoves/PickMove";
 import { StyledHighlight } from "../../components/AccountInfo/AccountInfo";
+import {Text} from "../../components/LoadingState/ProgressLoader";
 
 export interface IStartGameProps {}
 
@@ -77,10 +78,10 @@ function StartGame(props: IStartGameProps) {
         <PickMove onMoveChange={handleMoveChange} selectedMove={selectedMove} />
       </StyledInputWrapper>
       {rpsCreatedContractAddress && (
-        <Typography color="white">
+        <Text color="white">
           Created Game Contract:{" "}
-          <StyledHighlight>{rpsCreatedContractAddress}</StyledHighlight>
-        </Typography>
+          <StyledHighlight color="magenta">{rpsCreatedContractAddress}</StyledHighlight>
+        </Text>
       )}
       <Button
         disabled={startDisabled}

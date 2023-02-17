@@ -2,12 +2,14 @@ import { configureStore } from "@reduxjs/toolkit";
 import { startGameSlice } from "./slices/startGameSlice";
 import { joinGameSlice } from "./slices/joinGameSlice";
 import { finishGameSlice } from "./slices/finishGameSlice";
+import { transactionsLoadingSlice } from "./slices/transactionsLoadingSlice";
 
 export const store = configureStore({
   reducer: {
     startGame: startGameSlice.reducer,
     joinGame: joinGameSlice.reducer,
     finishGame: finishGameSlice.reducer,
+    transactionsLoading: transactionsLoadingSlice.reducer,
   },
 });
 

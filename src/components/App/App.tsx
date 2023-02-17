@@ -9,6 +9,7 @@ import AccountInfo from "../AccountInfo";
 import { Button, createTheme, ThemeProvider } from "@mui/material";
 import { Home } from "@mui/icons-material";
 import MyGames from "../../routes/MyGames";
+import ProgressLoader from "../LoadingState";
 
 const Wrapper = styled.div`
   position: relative;
@@ -16,7 +17,8 @@ const Wrapper = styled.div`
   flex-direction: column;
   padding: 32px 64px;
   width: 100%;
-  height: 100%;
+  height: auto;
+  min-height: 100%;
   background: rgb(4, 4, 4);
 `;
 
@@ -40,6 +42,7 @@ function App() {
     <Wrapper>
       <ThemeProvider theme={darkTheme}>
         <AccountInfo />
+        <ProgressLoader />
         <BrowserRouter>
           <StyledHomeButton to="/" aria-label="navigate home">
             <Button>

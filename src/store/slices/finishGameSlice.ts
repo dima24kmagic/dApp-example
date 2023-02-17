@@ -7,7 +7,7 @@ const initialState = {
 };
 
 export const finishGameSlice = createSlice({
-  name: "startGame",
+  name: "finishGame",
   initialState,
   reducers: {
     setFinishRPSAddress: (state, action: PayloadAction<string>) => {

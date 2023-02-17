@@ -1,6 +1,8 @@
 import { ChangeEvent } from "react";
-import { web3 } from "../../../index";
-import { createHashContractInstance } from "../../../services/contract_hash";
+import {
+  createHashContractInstance,
+  getHasherContractInstance,
+} from "../../../services/contract_hash";
 import { createRPSContractInstance } from "../../../services/contract_rps";
 import { useMetaMask } from "metamask-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,6 +18,10 @@ import {
   generateSalt,
   saveSaltToLocalStorage,
 } from "../../../services/manageContractsLocalStorage";
+import {
+  setIsMiningTransaction,
+  setLoadingMessage,
+} from "../../../store/slices/transactionsLoadingSlice";
 
 const useStartGame = () => {
   const { account } = useMetaMask();
@@ -49,41 +55,54 @@ const useStartGame = () => {
       alert("Connect to your metamask account!");
     }
 
-    const stakeValue = web3.utils.toWei(stake, "ether");
-
     const salt = generateSalt();
-    console.log("CREATE HASH");
-    const hashContractInstance = await createHashContractInstance({
-      salt,
-      initiatorAccountAddress: account as string,
-      initiatorMove: selectedMove,
-    });
-    console.log({ hashContractInstance });
+    dispatch(setIsMiningTransaction(true));
+    const hashContractInstance = await getHasherContractInstance();
+
     const hash = await hashContractInstance.methods
       .hash(selectedMove, salt)
       .call();
+
+    dispatch(
+      setLoadingMessage({
+        txHash: "",
+        message: "Now it time to create game smart contract",
+      })
+    );
 
     try {
       const rpsContractInstance = await createRPSContractInstance({
         account: account as string,
         hash,
         secondPartyAddress,
-        stakeValue,
+        stakeValue: stake,
+        onProcessing: (txHash) => {
+          dispatch(setIsMiningTransaction(true));
+          dispatch(
+            setLoadingMessage({
+              txHash,
+              message: "Creating RPS Smart Contract",
+            })
+          );
+        },
       });
-      dispatch(
-        setRpsCreatedContractAddress(rpsContractInstance.options.address)
-      );
       saveSaltToLocalStorage({
         salt,
         contractAddress: rpsContractInstance.options.address,
         move: selectedMove,
         account: account as string,
       });
+      dispatch(setIsMiningTransaction(false));
+      dispatch(
+        setRpsCreatedContractAddress(rpsContractInstance.options.address)
+      );
       dispatch(setSelectedMove(MOVES.Rock));
       dispatch(setStake("0"));
       dispatch(setSecondPartyAddress(""));
     } catch (e) {
       alert("Cant RPS contract");
+      dispatch(setIsMiningTransaction(false));
+      console.log(e);
     }
   };
 

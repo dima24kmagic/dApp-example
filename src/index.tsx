@@ -14,10 +14,8 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 export const web3 = new Web3(
-  "https://sepolia.infura.io/v3/60fd6c8e4eb542c5b2993b903087ce0b"
+  "https://eth-goerli.g.alchemy.com/v2/uGqOBrqaTOnm2Q3ovEd15n3zCrH_xyk7"
 );
-
-export const ethersProvider = new ethers.providers.JsonRpcProvider("https://sepolia.infura.io/v3/60fd6c8e4eb542c5b2993b903087ce0b");
 
 
 const GlobalStyle = createGlobalStyle`

@@ -1,6 +1,9 @@
 import { ChangeEvent } from "react";
 import { web3 } from "../../../index";
-import { getRPSContractInstance } from "../../../services/contract_rps";
+import {
+  getRPSContractInstance,
+  valueIntoHex,
+} from "../../../services/contract_rps";
 import { useMetaMask } from "metamask-react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../store";
@@ -10,8 +13,12 @@ import {
   setSelectedMove,
 } from "../../../store/slices/joinGameSlice";
 import { IMove, MOVES } from "../../../components/RPSMoves/PickMove";
-import { setStake } from "../../../store/slices/startGameSlice";
 import { createJoinedLocalStorageContract } from "../../../services/manageContractsLocalStorage";
+import { waitForTheTransactionToBeMined } from "../../../services/contract_hash";
+import {
+  setIsMiningTransaction,
+  setLoadingMessage,
+} from "../../../store/slices/transactionsLoadingSlice";
 
 const useJoinGame = () => {
   const { account } = useMetaMask();
@@ -42,20 +49,52 @@ const useJoinGame = () => {
       dispatch(setJoinStake(contractStake));
     } catch (e) {
       alert("Can't get contract instance");
+      console.log(e);
     }
   };
 
   const handleAcceptGame = async () => {
-    const stakeValue = web3.utils.toWei(joinStake, "ether");
-
     const rpsContractInstance = await getRPSContractInstance({
       deployedRPSContractAddress: joinRPSAddress,
     });
     try {
-      await rpsContractInstance.methods
+      const playMethodAbi = rpsContractInstance.methods
         .play(selectedMove)
-        .send({ from: account, value: stakeValue });
+        .encodeABI();
+
+      const networkId = await web3.eth.net.getId();
+
+      const transactionParameters = {
+        from: account,
+        to: joinRPSAddress,
+        value: valueIntoHex(web3.utils.toWei(joinStake, "ether")),
+        data: playMethodAbi,
+        chainId: networkId,
+      };
+
+      dispatch(setIsMiningTransaction(true));
+      dispatch(
+        setLoadingMessage({
+          message: "Please confirm sending your move and stake",
+          txHash: "",
+        })
+      );
+      const txHash = await window.ethereum.request({
+        method: "eth_sendTransaction",
+        params: [transactionParameters],
+      });
+
+      dispatch(
+        setLoadingMessage({
+          message: "Please wait for contract mining",
+          txHash,
+        })
+      );
+      await waitForTheTransactionToBeMined(txHash);
+      dispatch(setIsMiningTransaction(false));
+
       const creatorAccount = await rpsContractInstance.methods.j1().call();
+
       dispatch(setJoinStake("0"));
       dispatch(setSelectedMove(MOVES.Rock));
       dispatch(setJoinRPSAddress(""));
@@ -66,6 +105,7 @@ const useJoinGame = () => {
       });
     } catch (e) {
       console.log(e);
+      dispatch(setIsMiningTransaction(false));
     }
   };
 

@@ -8,7 +8,7 @@ const initialState = {
 };
 
 export const joinGameSlice = createSlice({
-  name: "startGame",
+  name: "joinGame",
   initialState,
   reducers: {
     setJoinStake: (state, action: PayloadAction<string>) => {

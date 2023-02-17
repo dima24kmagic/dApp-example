@@ -6,9 +6,9 @@ export const generateSalt = () => {
 
 export const contractsStorageKey = "contracts";
 
-export const getLocalStorageCreatedContracts = () => {
+export const getLocalStorageCreatedContracts = (storageKey: string) => {
   const existingContracts = JSON.parse(
-    localStorage.getItem(contractsStorageKey) || "{}"
+    localStorage.getItem(storageKey) || "{}"
   );
   return {
     contractsData: existingContracts,
@@ -69,21 +69,14 @@ export const createJoinedLocalStorageContract = ({
   );
 };
 
-export const getJoinedLocalStorageContracts = () => {
-  const existingjJoinedContracts = JSON.parse(
-    localStorage.getItem(joinedContractsLocalStorageKey) || "{}"
-  );
-  return existingjJoinedContracts;
-};
-
 export const deleteContractFromLocalStorage = (contractAddress: string, localStorageKey: string) => {
-  const { contractsData: localStorageContractData } =
-    getLocalStorageCreatedContracts();
+  const { contractsData } =
+    getLocalStorageCreatedContracts(localStorageKey);
   // @ts-ignore
-  delete localStorageContractData[contractAddress];
+  delete contractsData[contractAddress];
   localStorage.setItem(
     localStorageKey,
-    JSON.stringify(localStorageContractData)
+    JSON.stringify(contractsData)
   );
-  return localStorageContractData
+  return contractsData
 };
