@@ -15,12 +15,16 @@ const Wrapper = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 32px 64px;
+  padding: 32px 32px;
   width: 100%;
   height: auto;
   min-height: 100%;
   background: rgb(4, 4, 4);
-`;
+  
+  @media(max-width:720px) {
+    padding-top: 64px;
+  }
+ `;
 
 const StyledHomeButton = styled(Link)`
   display: flex;

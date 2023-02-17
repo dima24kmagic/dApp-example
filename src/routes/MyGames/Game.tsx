@@ -49,7 +49,7 @@ function Game(props: IGameProps) {
   return (
     <StyledGameWrapper key={contractKey}>
       <Text color="white">
-        Contract: <StyledHighlight>{contractKey}</StyledHighlight>
+        Contract: <StyledHighlight color="magenta">{contractKey}</StyledHighlight>
       </Text>
       <Text color="white">
         Selected move: <StyledHighlight>{move}</StyledHighlight>
